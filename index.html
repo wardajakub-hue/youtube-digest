@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Digest</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --border: #e5e5e2;
+    --text: #1c1c1a;
+    --text-muted: #6b6b66;
+    --accent: #b5482c;
+    --accent-soft: #f5e4de;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17161a;
+      --surface: #211f24;
+      --border: #33313a;
+      --text: #eceae6;
+      --text-muted: #9c99a3;
+      --accent: #e08a6c;
+      --accent-soft: #3a2a24;
+      --shadow: 0 1px 3px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17161a;
+    --surface: #211f24;
+    --border: #33313a;
+    --text: #eceae6;
+    --text-muted: #9c99a3;
+    --accent: #e08a6c;
+    --accent-soft: #3a2a24;
+    --shadow: 0 1px 3px rgba(0,0,0,0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    padding: 32px 20px 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.6rem;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  .controls {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .controls input, .controls select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .controls input {
+    flex: 1 1 220px;
+  }
+  .controls select {
+    flex: 0 0 auto;
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 16px;
+  }
+  .thumb {
+    flex: 0 0 160px;
+    width: 160px;
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  @media (max-width: 560px) {
+    .card {
+      flex-direction: column;
+    }
+    .thumb {
+      width: 100%;
+      height: 160px;
+      flex-basis: auto;
+    }
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .card-title-group {
+    min-width: 0;
+  }
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  .card-title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .card-title a:hover {
+    color: var(--accent);
+  }
+  .card-title-pl {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+  .badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .badge-category {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .badge-channel {
+    background: var(--bg);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .meta {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin: 0 0 12px;
+  }
+  ul.points {
+    margin: 0 0 10px;
+    padding-left: 20px;
+  }
+  ul.points li {
+    margin-bottom: 4px;
+    font-size: 0.92rem;
+  }
+  .audience {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 10px;
+  }
+  .source-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+  .source-link:hover {
+    text-decoration: underline;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 60px 20px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>YouTube Digest</h1>
+  <p class="subtitle">Automatyczne podsumowania śledzonych kanałów</p>
+</header>
+<div class="controls">
+  <input type="text" id="search" placeholder="Szukaj po tytule lub treści...">
+  <select id="channel-filter"><option value="">Wszystkie kanały</option></select>
+  <select id="category-filter"><option value="">Wszystkie kategorie</option></select>
+</div>
+<main id="cards"></main>
+
+<script>
+const DATA = [{"id": "lxdxi-M2nlE", "title_en": "What Makes a Leader Irreplaceable in the World of AI | Carey Nieuwhof", "title_pl": "Co czyni lidera niezastąpionym w świecie AI | Carey Nieuwhof", "url": "https://www.youtube.com/watch?v=lxdxi-M2nlE", "thumbnail_url": "https://img.youtube.com/vi/lxdxi-M2nlE/hqdefault.jpg", "published_date": "2026-09-16", "summary_points": ["Największym zagrożeniem AI nie jest utrata miejsc pracy, lecz wpływ na zdrowie psychiczne — Nieuwhof porównuje to do social media, ale spodziewa się głębszych skutków.", "Liczby: współzałożyciel Google DeepMind prognozuje, że rewolucja AI będzie 10x większa i 10x szybsza niż rewolucja przemysłowa.", "Nawet czołowe laboratoria AI i rządy nie rozumieją w pełni technologii, którą tworzą i próbują regulować.", "Rekomendacje dla firm: płatne (nie darmowe) plany AI ze względu na prywatność danych oraz jasna, regularnie aktualizowana polityka AI.", "Klucz do bycia niezastąpionym liderem: wykorzystywać AI bez utraty autentyczności, zaufania i troski o ludzi."], "audience_note": "Dla liderów i zespołów wdrażających AI w organizacji, którzy chcą robić to świadomie i bezpiecznie.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "atdfg12h0Xc", "title_en": "The Bottleneck Nobody Warns You About", "title_pl": "Wąskie gardło, przed którym nikt cię nie ostrzega", "url": "https://www.youtube.com/watch?v=atdfg12h0Xc", "thumbnail_url": "https://img.youtube.com/vi/atdfg12h0Xc/hqdefault.jpg", "published_date": "2026-09-02", "summary_points": ["\"Permission bottleneck\" powstaje, gdy ludzie czekają na czyjąś zgodę, by działać — pytanie nie brzmi \"kto może powiedzieć nie\", lecz \"jak głęboko sięga prawo do powiedzenia tak\".", "Wąskie gardło przybiera trzy formy: osoba, proces lub przestarzała polityka/zasada.", "Konsekwencja: najlepsi pracownicy odchodzą pierwsi, bo mają opcje — zostają ci, którym wolne tempo nie przeszkadza, co obniża morale i tempo misji.", "Diagnoza: cztery pytania samosprawdzające, m.in. \"czy inni omijają mnie, by coś załatwić?\".", "Konkretne zadanie na ten tydzień: znaleźć jedną decyzję czekającą na biurku i oddać ją komuś innemu."], "audience_note": "Dla liderów zespołów i organizacji, którzy czują, że decyzje i projekty utykają mimo dobrych ludzi.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "SMrpXw08FAw", "title_en": "What Every Credible Leader Has in Common", "title_pl": "Co łączy każdego wiarygodnego lidera", "url": "https://www.youtube.com/watch?v=SMrpXw08FAw", "thumbnail_url": "https://img.youtube.com/vi/SMrpXw08FAw/hqdefault.jpg", "published_date": "2026-08-19", "summary_points": ["Gość: Eric Geiger, autor książki \"The Rooted Leader\" (premiera 25 sierpnia) — wiarygodność lidera buduje praktyka i realna odpowiedzialność, nie tylko formalna edukacja.", "Geiger został pastorem wykonawczym w wieku 27 lat; mimo doktoratu z przywództwa podkreśla, że to presja odpowiedzialności nauczyła go najwięcej.", "Krytyka i ciężar przywództwa nie stają się z czasem łatwiejsze — nawet po dekadach \"to wciąż będzie bolało\".", "Co pomaga przetrwać presję: zdrowe małżeństwo, wiara, cotygodniowy dzień odpoczynku z czasem w Piśmie i aktywnością fizyczną na świeżym powietrzu (dla umysłu, nie wyglądu).", "Liderzy biznesowi nie są \"chrześcijanami drugiej kategorii\" — pełnią pełnoprawną służbę, mądrze mówiąc \"językiem wiary\" w środowisku świeckim."], "audience_note": "Dla liderów chrześcijańskich i osób szukających duchowo zakotwiczonego podejścia do presji i krytyki w przywództwie.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "jghnuMd9q1Y", "title_en": "Don't Let Failure Hold You Back | LIVE with John Maxwell", "title_pl": "Nie pozwól, by porażka cię zatrzymała | NA ŻYWO z Johnem Maxwellem", "url": "https://www.youtube.com/watch?v=jghnuMd9q1Y", "thumbnail_url": "https://img.youtube.com/vi/jghnuMd9q1Y/hqdefault.jpg", "published_date": "2026-08-05", "summary_points": ["Liczby: John Maxwell napisał 92 książki; to jego trzecia o porażce, bo drugą (pół miliona egzemplarzy) sam uznał za \"porażkę\" na tle miliona pierwszej.", "Najbardziej bolesna wczesna porażka Maxwella: zwolnienie zaufanego pracownika, po czym przez pół roku trzymał dystans do zespołu — błąd, który odkręcił, bo dystans chroni przed zranieniem, ale też blokuje pomoc.", "Rekomenduje \"upfront expectations\": zapowiadanie zespołowi na starcie, że porażki się zdarzą, i otwarte dzielenie się własnymi błędami — autentyczny lider ważniejszy niż idealny.", "Bliskie relacje z zespołem to warunek dobrego przywództwa, nie przeszkoda — mentor Maxwella: \"nie ma dwóch dobrych kolejnych dni w życiu lidera\".", "Przywództwo jest z natury samotne i bolesne, bo łatwe decyzje rozwiązuje się niżej, a do lidera trafiają tylko trudne."], "audience_note": "Dla liderów obawiających się porażek i izolacji, szukających praktycznego podejścia do bliskich, ale profesjonalnych relacji z zespołem.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "Pz7TGHJpd9I", "title_en": "What's Really Behind Overnight Success | Live from the Global Leadership Summit", "title_pl": "Co naprawdę stoi za sukcesem \"z dnia na dzień\" | Na żywo z Global Leadership Summit", "url": "https://www.youtube.com/watch?v=Pz7TGHJpd9I", "thumbnail_url": "https://img.youtube.com/vi/Pz7TGHJpd9I/hqdefault.jpg", "published_date": "2026-07-01", "summary_points": ["Teza: wielkie przywództwo nie jest charyzmatyczne, lecz \"nudne\" — polega na konsekwencji, nie błyskotliwości.", "Wzór: Konsekwencja + Wierność × Czas = Trwały wpływ.", "Liczby: nowy CEO Alcoa skupił się wyłącznie na bezpieczeństwie pracy (zero wypadków) — przychody wzrosły z 200 mln do 1,48 mld dolarów w ciągu 12 lat dzięki łańcuchowi lepszych systemów i zaufania.", "Kluczowe pojęcie: \"keystone habit\" (nawyk kluczowy) — małe, konsekwentne działanie wyzwalające pozytywny łańcuch innych nawyków (przykład Groeschela: nitkowanie zębów).", "Pytanie do zastosowania: jaki jeden mały nawyk, praktykowany konsekwentnie, mógłby zmienić Twoje życie i przywództwo?"], "audience_note": "Dla liderów szukających realnej metody budowania wpływu bez polegania na charyzmie czy szybkich efektach.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "zdl1MLKxfSE", "title_en": "Productivity Expert: Stop Procrastinating on What Matters Most | Jon Acuff", "title_pl": "Ekspert produktywności: przestań odkładać to, co najważniejsze | Jon Acuff", "url": "https://www.youtube.com/watch?v=zdl1MLKxfSE", "thumbnail_url": "https://img.youtube.com/vi/zdl1MLKxfSE/hqdefault.jpg", "published_date": "2026-06-17", "summary_points": ["Nową książkę \"Procrastination Proof\" Acuff mógł napisać dopiero jako 11. — potrzebował lat dowodów, że jego metody działają (\"evidence beats confidence\").", "Zmiana zaczyna się od pragnienia lub rozczarowania, nie dyscypliny — Acuff zaczął wstawać wcześnie nie z silnej woli, lecz bo małe dzieci zostawiały mu tylko godzinę 5:00 rano.", "Na impostor syndrome działa dowód/wysiłek, nie afirmacje — \"te półki pełne książek z moim nazwiskiem\" to mocniejszy argument niż wewnętrzny krytyk.", "Rada dla nowych liderów prowadzących spotkania: mówienie publiczne to akt służby wobec słuchaczy, nie występ na pokaz.", "Wiara jako źródło \"świętego pośpiechu\" do działania — odwołanie do przypowieści o talentach: natychmiastowe działanie, nie miesiące planowania."], "audience_note": "Dla twórców, mówców i liderów zmagających się z impostor syndrome i odkładaniem ważnych zadań na później.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "O_2A-qScXyE", "title_en": "Stop Losing Your Best Team Members", "title_pl": "Przestań tracić najlepszych członków zespołu", "url": "https://www.youtube.com/watch?v=O_2A-qScXyE", "thumbnail_url": "https://img.youtube.com/vi/O_2A-qScXyE/hqdefault.jpg", "published_date": "2026-06-03", "summary_points": ["Lider powinien afirmować w trzech kierunkach: w dół (zespół), w górę (przełożonych) i do wewnątrz (siebie samego).", "Afirmowanie w dół: chwal wysiłek i charakter, nie tylko wyniki — \"lider afirmujący tylko wyniki buduje wykonawców, lider afirmujący ludzi buduje liderów\".", "Technika \"afirmacyjnego plotkowania\": chwal kogoś przed osobą, która go kocha (współmałżonkiem, rodzicem, szefem szefa) — trafia głębiej niż pochwała wprost.", "Afirmowanie w górę: im wyżej w hierarchii, tym mniej szczerego uznania ktoś dostaje — pomagają regularne małe gesty plus 1-2 razy w roku głębsze, pisemne podziękowanie.", "Afirmowanie do wewnątrz: powtarzane, głośne afirmacje wobec siebie jako sposób walki z głosami zwątpienia i impostor syndrome."], "audience_note": "Dla liderów martwiących się o retencję najlepszych ludzi i chcących budować kulturę uznania na wszystkich poziomach.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "gxEHzJ8Lc7k", "title_en": "The Most Underused Leadership Habit", "title_pl": "Najbardziej niedoceniany nawyk przywódczy", "url": "https://www.youtube.com/watch?v=gxEHzJ8Lc7k", "thumbnail_url": "https://img.youtube.com/vi/gxEHzJ8Lc7k/hqdefault.jpg", "published_date": "2026-05-06", "summary_points": ["Liczby: tylko ok. 12% pracowników odchodzi z powodu pieniędzy — głównym powodem odejść jest poczucie niedocenienia.", "Afirmacja musi być spersonalizowana — wg \"5 języków uznania\" Gary'ego Chapmana w pracy: słowa uznania, akty służby, wspólny czas, upominki, adekwatny fizyczny gest.", "Afirmacja musi być aktualna w czasie — podziękowanie zaraz po sukcesie ma dużo większy wpływ niż to samo powiedziane tydzień później.", "Afirmacja powinna być konkretna, nie ogólna — \"dobra robota\" nagradza sam wysiłek, ale konkretna pochwała realnie kształtuje przyszłe zachowanie.", "Gdy ktoś daje szeroko (np. cała firma dostaje książkę), rzadko ktoś dziękuje indywidualnie — bądź wyjątkiem i podziękuj personalnie."], "audience_note": "Dla liderów, którzy chcą realnie zatrzymać najlepszych pracowników przez skuteczniejsze, spersonalizowane uznanie.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "bO-N-sWke4E", "title_en": "Cognitive Neuroscientist: The Formula to Rewire Your Mind | Dr. Caroline Leaf", "title_pl": "Neurobiolog poznawcza: formuła na przeprogramowanie umysłu | dr Caroline Leaf", "url": "https://www.youtube.com/watch?v=bO-N-sWke4E", "thumbnail_url": "https://img.youtube.com/vi/bO-N-sWke4E/hqdefault.jpg", "published_date": "2026-04-01", "summary_points": ["Liczby: trwała zmiana wzorca myślowego wymaga min. 63 dni konsekwentnej codziennej pracy nad tzw. \"neurocyklem\".", "Metoda na stresującą chwilę w spotkaniu: \"multiple perspective advantage\" — mentalnie cofnąć się i obserwować siebie reagującego, zanim się zareaguje.", "Neurocykl, 5 kroków dziennie: gather (zbierz dane o myśli/emocji/ciele), reflect (zapytaj dlaczego/kto/kiedy/gdzie/co), mind-storm (co jeszcze się z tym wiąże), reconceptualize (inna perspektywa), action.", "Technika oddzielania się od cudzej toksyczności: \"umieść tę osobę w oknie\" i świadomie nie wchłaniaj jej emocji, by zachować jasność myślenia.", "Intruzywne, toksyczne myśli nie znikają same — trzeba je świadomie zdekonstruować i zrekonstruować, praktykując rytm codziennie."], "audience_note": "Dla liderów odczuwających presję lub przeciążenie i szukających naukowo uzasadnionej techniki radzenia sobie w trudnych momentach.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}, {"id": "796mG34hIvo", "title_en": "Right Person, Wrong Seat", "title_pl": "Właściwa osoba, złe stanowisko", "url": "https://www.youtube.com/watch?v=796mG34hIvo", "thumbnail_url": "https://img.youtube.com/vi/796mG34hIvo/hqdefault.jpg", "published_date": "2026-03-04", "summary_points": ["Dwa częste błędy liderów: mylenie lojalności z dopasowaniem do roli oraz założenie, że sam wysiłek naprawi złe dopasowanie.", "Cztery możliwe przyczyny słabych wyników dobrego pracownika: zły fotel (rola), zły dobór do zespołu (te same mocne strony się nie mnożą), zły przełożony, zły sezon życia.", "Zanim przesuniesz kogoś na inne stanowisko, spróbuj przeprojektować rolę: dostosuj zakres obowiązków, dodaj wsparcie, usuń tarcia.", "Jeśli ktoś zmienia kilka foteli i nadal nie działa, problemem nie jest już fotel, tylko dopasowanie do organizacji — ignorowanie tego czyni liderem \"problemem\".", "Pytanie osobiste dla lidera: \"a co, jeśli to ja jestem na złym miejscu?\" — bycie w niewłaściwym fotelu to oznaka samoświadomości, nie porażki."], "audience_note": "Dla liderów zarządzających zespołami, którzy mają zaangażowanych, ale niedowożących wyników ludzi i szukają diagnozy zamiast winy.", "channel": "Craig Groeschel", "category": "Leadership", "added_date": "2026-09-21"}];
+
+const cardsEl = document.getElementById('cards');
+const searchEl = document.getElementById('search');
+const channelEl = document.getElementById('channel-filter');
+const categoryEl = document.getElementById('category-filter');
+
+function populateFilters() {
+  const channels = [...new Set(DATA.map(d => d.channel))].sort();
+  const categories = [...new Set(DATA.map(d => d.category))].sort();
+  for (const c of channels) {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    channelEl.appendChild(opt);
+  }
+  for (const c of categories) {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    categoryEl.appendChild(opt);
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+function render() {
+  const q = searchEl.value.trim().toLowerCase();
+  const chan = channelEl.value;
+  const cat = categoryEl.value;
+
+  const filtered = DATA.filter(item => {
+    if (chan && item.channel !== chan) return false;
+    if (cat && item.category !== cat) return false;
+    if (q) {
+      const haystack = (
+        (item.title_en || '') + ' ' + (item.title_pl || '') + ' ' +
+        (item.summary_points || []).join(' ') + ' ' + (item.audience_note || '')
+      ).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  filtered.sort((a, b) => (b.published_date || '').localeCompare(a.published_date || ''));
+
+  if (filtered.length === 0) {
+    cardsEl.innerHTML = '<div class="empty-state">Brak wyników.</div>';
+    return;
+  }
+
+  cardsEl.innerHTML = filtered.map(item => `
+    <article class="card">
+      <div class="thumb">
+        ${item.thumbnail_url ? `<img src="${escapeHtml(item.thumbnail_url)}" alt="" loading="lazy">` : ''}
+      </div>
+      <div class="card-body">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2 class="card-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${escapeHtml(item.title_en)}</a></h2>
+            ${item.title_pl ? `<p class="card-title-pl">${escapeHtml(item.title_pl)}</p>` : ''}
+          </div>
+          <div class="badges">
+            <span class="badge badge-category">${escapeHtml(item.category)}</span>
+            <span class="badge badge-channel">${escapeHtml(item.channel)}</span>
+          </div>
+        </div>
+        <p class="meta">Opublikowano: ${escapeHtml(item.published_date || 'b/d')}</p>
+        <a class="source-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">Zobacz na YouTube ↗</a>
+        <ul class="points">
+          ${(item.summary_points || []).map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+        </ul>
+        <p class="audience">${escapeHtml(item.audience_note || '')}</p>
+      </div>
+    </article>
+  `).join('');
+}
+
+populateFilters();
+render();
+searchEl.addEventListener('input', render);
+channelEl.addEventListener('change', render);
+categoryEl.addEventListener('change', render);
+</script>
+</body>
+</html>
